@@ -29,6 +29,11 @@
             </intent-filter>
         </activity>
 
+        <!-- Add the new activity for MyRecipesActivity -->
+        <activity
+            android:name=".MyRecipesActivity"
+            android:exported="true" />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

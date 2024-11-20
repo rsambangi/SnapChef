@@ -19,9 +19,17 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // Scan Food Items Button
         val scanButton = findViewById<Button>(R.id.scan)
         scanButton.setOnClickListener {
             val intent = Intent(this, CameraPage::class.java)
+            startActivity(intent)
+        }
+
+        // View Recipes Button
+        val recipesButton = findViewById<Button>(R.id.myrecipes)  // Assuming you have a button with id 'recipes'
+        recipesButton.setOnClickListener {
+            val intent = Intent(this, MyRecipesActivity::class.java)
             startActivity(intent)
         }
     }
