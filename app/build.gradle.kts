@@ -37,6 +37,8 @@ android {
 
 dependencies {
 
+    implementation(libs.okhttp)
+    implementation(libs.gson)
     val camerax_version = "1.5.0-alpha03"
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

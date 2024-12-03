@@ -1,18 +1,23 @@
 package com.cs407.snapchef
 
-import android.content.ContentValues
+import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
+import android.util.Base64
+import android.util.Log
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -20,14 +25,34 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import android.Manifest
 
 class CameraPage : AppCompatActivity() {
 
     private lateinit var imageCapture: ImageCapture
     private lateinit var cameraExecutor: ExecutorService
+
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
+        val galleryUri = it
+        try{
+            if (galleryUri != null) {
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, galleryUri)
+                val base64String = bitmapToDataImage(bitmap)
+
+                moveToIdentifyActivity(base64String)
+            } else {
+                Toast.makeText(this@CameraPage, "Could not upload Image!", Toast.LENGTH_SHORT).show()
+            }
+
+        }catch(e:Exception){
+            Toast.makeText(this@CameraPage, "Could not upload Image!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +70,7 @@ class CameraPage : AppCompatActivity() {
 
         val cameraPreview = findViewById<PreviewView>(R.id.cameraPreview)
         val captureButton = findViewById<Button>(R.id.captureButton)
+        val uploadImageButton = findViewById<Button>(R.id.uploadImageButton)
 
         // Initialize the camera executor
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -72,39 +98,49 @@ class CameraPage : AppCompatActivity() {
             }
         }, ContextCompat.getMainExecutor(this))
 
-        // Set up the capture button
+        // Click Listeners
         captureButton.setOnClickListener { capturePhoto() }
+        uploadImageButton.setOnClickListener { galleryLauncher.launch("image/*") }
     }
 
     private fun capturePhoto() {
-        // Set up the ContentValues for MediaStore
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "photo_${System.currentTimeMillis()}.jpg")
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Images.Media.RELATIVE_PATH)
-        }
+        val imageFile = imageCapture.takePicture(
+            cameraExecutor,
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(imageProxy: ImageProxy) {
+                    val buffer = imageProxy.planes[0].buffer
+                    val bytes = ByteArray(buffer.capacity())
+                    buffer.get(bytes)
 
-        val resolver = contentResolver
-        val imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    val base64String = bitmapToDataImage(bitmap)
 
-        if (imageUri != null) {
-            val outputOptions = ImageCapture.OutputFileOptions.Builder(resolver, imageUri, contentValues).build()
-            imageCapture.takePicture(
-                outputOptions,
-                ContextCompat.getMainExecutor(this),
-                object : ImageCapture.OnImageSavedCallback {
-                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                        Toast.makeText(this@CameraPage, "Photo saved: $imageUri", Toast.LENGTH_SHORT).show()
-                    }
-
-                    override fun onError(exception: ImageCaptureException) {
-                        Toast.makeText(this@CameraPage, "Error saving photo: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    }
+                    moveToIdentifyActivity(base64String)
                 }
-            )
-        } else {
-            Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show()
-        }
+
+                override fun onError(exception: ImageCaptureException) {
+                    Toast.makeText(this@CameraPage, "Could not take Image!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
+    private fun bitmapToDataImage(bitmap: Bitmap): String {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+        return "data:image/jpeg;base64," + Base64.encodeToString(byteArray, Base64.NO_WRAP)
+    }
+
+    private fun moveToIdentifyActivity(dataImage: String) {
+        val file = File(this@CameraPage.filesDir, "image_base64.txt")
+        val outputStream = FileOutputStream(file)
+        outputStream.write(dataImage.toByteArray())
+        outputStream.close()
+
+        val intent = Intent(this, IngredientsConfirmActivity::class.java)
+        intent.putExtra("dataImagePath", file.absolutePath)
+        startActivity(intent)
     }
 
     override fun onDestroy() {
