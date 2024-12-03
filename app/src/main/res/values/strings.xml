@@ -4,4 +4,10 @@
     <string name="new_scan">New Scan</string>
     <string name="my_recipes">My Recipes</string>
     <string name="capture">Capture</string>
+    <string name="loading_identify">Identifying Ingredients…</string>
+    <string name="confirm_ingredients">Confirm Ingredients</string>
+    <string name="api_endpoint">https://snapchef-backend.vercel.app</string>
+    <string name="api_key">goober</string>
+    <string name="generate_recipe">Generate Recipe</string>
+    <string name="loading_generate_recipe">Generating Recipe…</string>
 </resources>
