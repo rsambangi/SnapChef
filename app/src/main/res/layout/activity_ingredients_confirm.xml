@@ -16,6 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="301dp"
+            android:fontFamily="@font/alata"
             android:text="@string/loading_identify"
             android:textAlignment="center"
             android:textSize="24sp"
