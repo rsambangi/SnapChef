@@ -14,9 +14,20 @@ cameraLifecycle = "1.4.0"
 cameraView = "1.4.0"
 okhttp = "4.10.0"
 gson = "2.11.0"
+roomCommon = "2.6.1"
+roomKtx = "2.6.1"
+pagingRuntimeKtx = "3.3.4"
+pagingCommonAndroid = "3.3.4"
+pagingCommonJvm = "3.3.4"
+leanbackPaging = "1.1.0-alpha11"
+roomRuntime = "2.5.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCommon" }
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCommon" }
+androidx-room-runtime-v252 = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -29,6 +40,12 @@ androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycl
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version = "4.12.0" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
+androidx-paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
+androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
+androidx-paging-common-jvm = { group = "androidx.paging", name = "paging-common-jvm", version.ref = "pagingCommonJvm" }
+androidx-leanback-paging = { group = "androidx.leanback", name = "leanback-paging", version.ref = "leanbackPaging" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.devtools.ksp")
+    id("androidx.navigation.safeargs.kotlin")
+    id("io.github.takahirom.roborazzi") version "1.8.0-alpha-5"
 }
 
 android {
@@ -37,8 +40,15 @@ android {
 
 dependencies {
 
+    implementation (libs.androidx.room.paging)
     implementation(libs.okhttp)
     implementation(libs.gson)
+    implementation(libs.androidx.room.common)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation (libs.androidx.room.runtime.v252)
+    ksp (libs.androidx.room.compiler)
+    implementation(libs.androidx.leanback.paging)
     val camerax_version = "1.5.0-alpha03"
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

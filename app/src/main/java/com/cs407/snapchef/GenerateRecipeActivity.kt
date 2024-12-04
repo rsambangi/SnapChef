@@ -1,5 +1,6 @@
 package com.cs407.snapchef
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,6 +11,9 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.lifecycle.lifecycleScope
+import com.cs407.snapchef.data.RecipeDatabase
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,12 +25,19 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 class GenerateRecipeActivity : AppCompatActivity() {
+
+    private lateinit var generatedRecipe: Recipe
+    private lateinit var recipeDB: RecipeDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_recipe)
+
+        recipeDB = RecipeDatabase.getDatabase(this@GenerateRecipeActivity)
 
         print("Check Before Intent")
         val ingredientsResponse = intent.getStringExtra("ingredientsResponse")
@@ -41,7 +52,8 @@ class GenerateRecipeActivity : AppCompatActivity() {
         findViewById<Button>(R.id.regenerateButton).setOnClickListener {
             val ingredients = intent.getStringExtra("ingredientsResponse")
             if (ingredients != null) {
-                findViewById<ConstraintLayout>(R.id.loadingGenerateRecipeLayout).visibility = View.VISIBLE
+                findViewById<ConstraintLayout>(R.id.loadingGenerateRecipeLayout).visibility =
+                    View.VISIBLE
                 findViewById<LinearLayout>(R.id.recipeLayout).visibility = View.GONE
                 val buttonLayout = findViewById<LinearLayout>(R.id.buttonLinearLayout)
                 buttonLayout.visibility = View.GONE
@@ -54,7 +66,7 @@ class GenerateRecipeActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.saveButton).setOnClickListener {
-            // Placeholder for the "Save" button functionality
+            saveContent()
         }
     }
 
@@ -82,7 +94,8 @@ class GenerateRecipeActivity : AppCompatActivity() {
                 print("Client call successful")
                 if (response.isSuccessful && responseBody != null) {
                     withContext(Dispatchers.Main) {
-                        val loadingLayout = findViewById<ConstraintLayout>(R.id.loadingGenerateRecipeLayout)
+                        val loadingLayout =
+                            findViewById<ConstraintLayout>(R.id.loadingGenerateRecipeLayout)
                         loadingLayout.visibility = View.GONE
 
                         val recipeLayout = findViewById<LinearLayout>(R.id.recipeLayout)
@@ -91,11 +104,9 @@ class GenerateRecipeActivity : AppCompatActivity() {
 
                         val gson = Gson()
                         val parsedResponse = gson.fromJson(responseBody, RecipeResponse::class.java)
-                        print("Recipe Generated")
-                        print(parsedResponse.data.recipe.name)
-                        val recipe = parsedResponse.data.recipe
+                        generatedRecipe = parsedResponse.data.recipe
 
-                        displayRecipe(recipe)
+                        displayRecipe(generatedRecipe)
                         Log.i("POST", responseBody)
                     }
                 } else {
@@ -130,7 +141,8 @@ class GenerateRecipeActivity : AppCompatActivity() {
         // Add Steps
         recipe.steps.forEachIndexed { index, step ->
             val stepTextView = TextView(this).apply {
-                text = "Step ${index + 1}: ${step.step}\nIngredients: ${step.ingredients.joinToString(", ")}\nTime: ${step.time}"
+                text =
+                    "Step ${index + 1}: ${step.step}\nIngredients: ${step.ingredients.joinToString(", ")}\nTime: ${step.time}"
                 setPadding(0, 0, 0, 16) // Bottom padding
             }
             recipeLayout.addView(stepTextView)
@@ -142,5 +154,25 @@ class GenerateRecipeActivity : AppCompatActivity() {
         buttonLayout.visibility = View.VISIBLE
     }
 
+    private fun saveContent() {
 
+        // TODO: Launch a coroutine to save the note in the background (non-UI thread)
+        lifecycleScope.launch {
+
+            withContext(Dispatchers.IO) {
+
+                val newSteps = mutableListOf<com.cs407.snapchef.data.Step>()
+                generatedRecipe.steps.forEach { step ->
+                    newSteps.add(com.cs407.snapchef.data.Step(step.step, step.ingredients, step.time))
+                }
+
+                val inputRecipe = com.cs407.snapchef.data.Recipe(name = generatedRecipe.name,
+                    description = generatedRecipe.description,
+                    recipeSummary = generatedRecipe.description.take(43) + "...",
+                    steps = newSteps)
+
+                recipeDB.recipeDao().insertRecipe(inputRecipe)
+            }
+        }
+    }
 }

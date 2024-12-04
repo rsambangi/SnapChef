@@ -26,6 +26,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 import org.json.JSONObject
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 class RecyclerAdapter(private val itemList: List<Ingredient>) : RecyclerView.Adapter<RecyclerAdapter.MyViewHolder>() {
 
@@ -79,7 +80,11 @@ class IngredientsConfirmActivity : AppCompatActivity()
             val file = File(dataImagePath)
             val dataImage = file.readText()
 
-            val client = OkHttpClient()
+            val client = OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .build()
 
             val jsonData = JSONObject()
             jsonData.put("imageUrl", dataImage)

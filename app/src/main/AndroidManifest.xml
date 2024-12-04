@@ -25,6 +25,9 @@
             android:name=".GenerateRecipeActivity"
             android:exported="false" />
         <activity
+            android:name=".RecipePreviewActivity"
+            android:exported="false" />
+        <activity
             android:name=".CameraPage"
             android:exported="false" />
         <activity
