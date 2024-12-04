@@ -100,8 +100,8 @@ class MyRecipesActivity : AppCompatActivity()
                 // TODO: Dismiss the bottom sheet dialog after the deletion is completed
                 bottomSheetDialog.dismiss()
 
-                // TODO: Reload the list of notes to reflect the deleted note (e.g., refresh UI)
-                loadRecipes() // Implement the function to refresh or reload the notes
+                // TODO: Reload the list of recipes to reflect the deleted note (e.g., refresh UI)
+                loadRecipes() // Implement the function to refresh or reload the recipes
             }
 
             cancelButton.setOnClickListener {
