@@ -108,11 +108,15 @@ class IngredientsConfirmActivity : AppCompatActivity()
                     val responseBody = response.body?.string()
                     if (response.isSuccessful && responseBody != null) {
                         withContext(Dispatchers.Main) {
-                            val loadingLayout = findViewById<ConstraintLayout>(R.id.loadingIdentifyLayout)
-                            loadingLayout.visibility = View.GONE
+                            // Hide loading layout
+                            findViewById<ConstraintLayout>(R.id.loadingIdentifyLayout).visibility = View.GONE
 
-                            val confirmLayout = findViewById<LinearLayout>(R.id.confirmIngredientsLayout)
-                            confirmLayout.visibility = View.VISIBLE
+                            // Show updated UI elements (no instructionsContainer and instructionsDivider now)
+                            findViewById<TextView>(R.id.confirmIngredientsTitle).visibility = View.VISIBLE
+                            findViewById<View>(R.id.titleDivider).visibility = View.VISIBLE
+                            findViewById<LinearLayout>(R.id.ingredientsContainer).visibility = View.VISIBLE
+                            findViewById<View>(R.id.ingredientsDivider).visibility = View.VISIBLE
+                            findViewById<LinearLayout>(R.id.buttonContainer).visibility = View.VISIBLE
 
                             val gson = Gson()
                             val parsedResponse = gson.fromJson(responseBody, IngredientsResponse::class.java)
@@ -126,6 +130,7 @@ class IngredientsConfirmActivity : AppCompatActivity()
                     } else {
                         Log.i("POST", "Request failed: ${response.body?.string()}")
                     }
+
                 } catch (e: IOException) {
                     Log.i("ERROR", e.stackTrace.toString())
                 }
