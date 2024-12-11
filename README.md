@@ -20,5 +20,6 @@
 
 ### Rohan
 * UI Design
-* Refactoring all user interface pages for readability and visual appeal
+* Refactoring all user interface pages from basic UI skeleton to finalized formatted UI for readability and visual appeal
+* Recipe Preview Page
 * Home Page
