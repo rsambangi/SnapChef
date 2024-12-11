@@ -14,7 +14,7 @@
         android:orientation="vertical"
         android:padding="16dp"
         android:layout_marginTop="100dp"
-        android:background="#CCFFFFFF" ><!-- Semi-opaque white -->
+        android:background="@drawable/rounded_background" ><!-- Semi-opaque white -->
         <!-- Recipe Title -->
         <TextView
             android:id="@+id/recipeTitle"
