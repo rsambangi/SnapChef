@@ -1,7 +1,9 @@
 package com.cs407.snapchef
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -25,6 +27,13 @@ class RecipePreviewActivity : AppCompatActivity() {
 
         val id = intent.getIntExtra("recipeId", 0)
 
+        val homeButton = findViewById<Button>(R.id.homeButton)
+        homeButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish() // if you want to close this activity
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             recipe = recipeDB.recipeDao().getRecipeById(id)!!
 
@@ -33,42 +42,82 @@ class RecipePreviewActivity : AppCompatActivity() {
                 newSteps.add(Step(step.ingredients, step.step, step.time))
             }
 
-            val inputRecipe = Recipe(name = recipe.name,
+            val inputRecipe = Recipe(
+                name = recipe.name,
                 description = recipe.description,
-                steps = newSteps)
+                steps = newSteps
+            )
 
-           withContext(Dispatchers.Main) { displayRecipe(inputRecipe)}
+            withContext(Dispatchers.Main) { displayRecipe(inputRecipe) }
         }
     }
 
+
     private fun displayRecipe(recipe: Recipe) {
+        val titleTextView = findViewById<TextView>(R.id.recipeTitle)
+        val descriptionTextView = findViewById<TextView>(R.id.recipeDescription)
         val recipeLayout = findViewById<LinearLayout>(R.id.recipeLayout)
-        recipeLayout.removeAllViews() // Clear any previous content
+        val scrollView = findViewById<ScrollView>(R.id.recipeScrollView)
 
-        // Add Recipe Name
-        val nameTextView = TextView(this).apply {
-            text = recipe.name
-            textSize = 24f
-            setPadding(0, 0, 0, 8) // Bottom padding
-        }
-        recipeLayout.addView(nameTextView)
+        // Clear any previous step content
+        recipeLayout.removeAllViews()
 
-        // Add Recipe Description
-        val descriptionTextView = TextView(this).apply {
-            text = recipe.description
-            textSize = 16f
-            setPadding(0, 0, 0, 16) // Bottom padding
-        }
-        recipeLayout.addView(descriptionTextView)
+        // Set the title and description
+        // (The large font sizes and styling are defined in the XML)
+        titleTextView.text = recipe.name
+        descriptionTextView.text = recipe.description
 
         // Add Steps
         recipe.steps.forEachIndexed { index, step ->
-            val stepTextView = TextView(this).apply {
-                text =
-                    "Step ${index + 1}: ${step.step}\nIngredients: ${step.ingredients.joinToString(", ")}\nTime: ${step.time}"
-                setPadding(0, 0, 0, 16) // Bottom padding
+            // Step Title
+            val stepTitle = TextView(this).apply {
+                text = "Step ${index + 1}"
+                textSize = 20f
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                setPadding(0, 16, 0, 8)
             }
-            recipeLayout.addView(stepTextView)
+            recipeLayout.addView(stepTitle)
+
+            // Instructions
+            val stepInstructions = TextView(this).apply {
+                text = step.step
+                textSize = 16f
+                setPadding(0, 0, 0, 8)
+            }
+            recipeLayout.addView(stepInstructions)
+
+            // Ingredients
+            val ingredientsTextView = TextView(this).apply {
+                text = "Ingredients: ${step.ingredients.joinToString(", ")}"
+                textSize = 14f
+                setPadding(0, 0, 0, 4)
+            }
+            recipeLayout.addView(ingredientsTextView)
+
+            // Time
+            val timeTextView = TextView(this).apply {
+                text = "Time: ${step.time}"
+                textSize = 14f
+                setPadding(0, 0, 0, 16)
+            }
+            recipeLayout.addView(timeTextView)
+
+            // Optional: Divider line between steps
+            if (index < recipe.steps.size - 1) {
+                val divider = View(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        2
+                    )
+                    setBackgroundColor(resources.getColor(android.R.color.darker_gray))
+                }
+                recipeLayout.addView(divider)
+            }
         }
+
+        // Ensure the ScrollView is visible
+        scrollView.visibility = View.VISIBLE
     }
+
+
 }
