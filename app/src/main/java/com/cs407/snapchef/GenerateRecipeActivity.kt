@@ -1,6 +1,7 @@
 package com.cs407.snapchef
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -67,6 +68,8 @@ class GenerateRecipeActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.saveButton).setOnClickListener {
             saveContent()
+            val intent = Intent(this, MyRecipesActivity::class.java)
+            startActivity(intent)
         }
     }
 
