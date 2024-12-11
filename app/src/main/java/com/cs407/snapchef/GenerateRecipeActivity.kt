@@ -1,6 +1,6 @@
 package com.cs407.snapchef
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,10 +9,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import com.cs407.snapchef.data.RecipeDatabase
 import com.google.gson.Gson
@@ -24,9 +22,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
 import java.io.IOException
-import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 class GenerateRecipeActivity : AppCompatActivity() {
@@ -56,20 +52,17 @@ class GenerateRecipeActivity : AppCompatActivity() {
                 findViewById<ConstraintLayout>(R.id.loadingGenerateRecipeLayout).visibility =
                     View.VISIBLE
                 findViewById<LinearLayout>(R.id.recipeLayout).visibility = View.GONE
-                val buttonLayout = findViewById<LinearLayout>(R.id.buttonLinearLayout)
-                buttonLayout.visibility = View.GONE
                 generateRecipe(ingredients)
             }
         }
 
-        findViewById<Button>(R.id.startButton).setOnClickListener {
-            // Placeholder for the "Start" button functionality
+        findViewById<Button>(R.id.myRecipesButton).setOnClickListener {
+            val intent = Intent(this, MyRecipesActivity::class.java)
+            startActivity(intent)
         }
 
         findViewById<Button>(R.id.saveButton).setOnClickListener {
             saveContent()
-            val intent = Intent(this, MyRecipesActivity::class.java)
-            startActivity(intent)
         }
     }
 
@@ -122,71 +115,20 @@ class GenerateRecipeActivity : AppCompatActivity() {
     }
 
     private fun displayRecipe(recipe: Recipe) {
-        val titleTextView = findViewById<TextView>(R.id.recipeTitle)
-        val descriptionTextView = findViewById<TextView>(R.id.recipeDescription)
-        val recipeLayout = findViewById<LinearLayout>(R.id.recipeLayout)
+        val recipeTitle = findViewById<TextView>(R.id.recipeTitle)
+        val recipeDescription = findViewById<TextView>(R.id.recipeDescription)
+        val recipeDetails = findViewById<TextView>(R.id.recipeDetails)
 
-        // Clear previous content
-        recipeLayout.removeAllViews()
+        recipeTitle.text = recipe.name
+        recipeDescription.text = recipe.description
 
-        // Set title and description
-        titleTextView.text = recipe.name
-        descriptionTextView.text = recipe.description
-
-        // Add Steps
-        recipe.steps.forEachIndexed { index, step ->
-            // Step title
-            val stepTitle = TextView(this).apply {
-                text = "Step ${index + 1}"
-                textSize = 20f
-                setTypeface(typeface, android.graphics.Typeface.BOLD)
-                setPadding(0, 16, 0, 8)
-            }
-            recipeLayout.addView(stepTitle)
-
-            // Instructions
-            val stepInstructions = TextView(this).apply {
-                text = step.step
-                textSize = 16f
-                setPadding(0, 0, 0, 8)
-            }
-            recipeLayout.addView(stepInstructions)
-
-            // Ingredients
-            val ingredientsTextView = TextView(this).apply {
-                text = "Ingredients: ${step.ingredients.joinToString(", ")}"
-                textSize = 14f
-                setPadding(0, 0, 0, 4)
-            }
-            recipeLayout.addView(ingredientsTextView)
-
-            // Time
-            val timeTextView = TextView(this).apply {
-                text = "Time: ${step.time}"
-                textSize = 14f
-                setPadding(0, 0, 0, 16)
-            }
-            recipeLayout.addView(timeTextView)
-
-            // Optional divider line between steps
-            if (index < recipe.steps.size - 1) {
-                val divider = View(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        2
-                    )
-                    setBackgroundColor(resources.getColor(android.R.color.darker_gray))
-                }
-                recipeLayout.addView(divider)
-            }
+        val totalSteps = recipe.steps.size
+        val estimatedTime = recipe.steps.sumOf { step ->
+            step.time.split(" ")[0].toInt() // Pranshu add time format
         }
 
-        // Show the ScrollView and Buttons now that recipe is ready
-        findViewById<ScrollView>(R.id.recipeScrollView).visibility = View.VISIBLE
-        findViewById<LinearLayout>(R.id.buttonLinearLayout).visibility = View.VISIBLE
-        findViewById<ConstraintLayout>(R.id.loadingGenerateRecipeLayout).visibility = View.GONE
+        recipeDetails.text = "Steps: $totalSteps\nEstimated Time: $estimatedTime minutes"
     }
-
 
     private fun saveContent() {
 

@@ -14,5 +14,21 @@
     <string name="start">Start</string>
     <string name="save">Save</string>
     <string name="recipe_database">recipeDatabase</string>
-    <string name="home">Home</string>
+    <string name="recipe_title">Recipe Title</string>
+    <string name="step_x_of_y">Step X of Y</string>
+    <string name="step_description_here">Step description here</string>
+    <string name="ingredients">Ingredients:</string>
+    <string name="estimated_time">Estimated Time:</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="return_to_home">Return to Home</string>
+    <string name="steps_x_nestimated_time_y_minutes">Steps: X\nEstimated Time: Y minutes</string>
+    <string name="recipe_description">Recipe Description</string>
+    <string name="delete_recipe">Delete Recipe</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="name">Name</string>
+    <string name="quantity">Quantity</string>
+    <string name="unit">Unit</string>
+    <string name="share_recipe">Share Recipe</string>
 </resources>
